@@ -1,0 +1,17 @@
+{
+  "name": "com.ezphera.timerscore",
+  "displayName": "Timer And Score System",
+  "version": "1.0.0",
+  "unity": "2018.1",
+  "author": {
+    "name": "Oscar Gutierrez",
+    "email": "oscar.gutierrez@ezphera.net",
+    "url": "https://ezpheratech.com"
+  },
+  "description": "Timer and Score is used for make games in short time, with this you can detect when time start and finish with a action callback...",
+  "repository": {},
+  "type": "tool",
+  "dependencies": {
+    "com.unity.textmeshpro": "2.0.1"
+  }
+}
