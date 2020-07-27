@@ -1,7 +1,11 @@
 {
-    "name": "Ezphera.TimerScore",
-    "references": [],
-    "includePlatforms": [],
+    "name": "Ezphera.TimerScore.Editor",
+    "references": [
+        "GUID:d1d78aa747cce1c44bf2fa85f50ccf9b"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

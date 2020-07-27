@@ -7,6 +7,7 @@
     [DisallowMultipleComponent]
     public class Timer : MonoBehaviour
     {
+        #region callback vars
         public delegate void TimerCallback();
 
         /// <summary>
@@ -33,45 +34,79 @@
         /// CallBack on stop time
         /// </summary>
         public event TimerCallback OnStop;
+        #endregion
+        public enum TimerType 
+        {
+            Countdown,
+            Chronometer
+        }
+        /// <summary>
+        /// Timer behaviour's
+        /// </summary>
+        public TimerType timerType = TimerType.Countdown;
 
         /// <summary>
-        /// The Timer on scene
+        /// If you are using only one timer in scene this return the timer using, 
+        /// but if you are using multiple timers search for other options..
         /// </summary>
         public static Timer instance;
 
         /// <summary>
-        /// The time is running on scene
+        /// This determine if the timer is running
         /// </summary>
-        [HideInInspector]
         public bool isPlaying;
 
         /// <summary>
         /// The game time in seconds
         /// </summary>
-        [Tooltip("The game time in seconds")]
-        public float time = 100;
-
-        public bool timeAsScore;
-        public int scoreBased;
+        [Tooltip("The time where start when the timer type is countdown")]
+        public float startFrom = 100;
 
         bool paused;
+
         public float timeElapsed;
 
         private void Awake()
         {
             instance = this;
+            if(timerType == TimerType.Countdown)timeElapsed = startFrom;
         }
 
-        public void SetTimeAsScore(bool asScore)
+        public void Update()
         {
-            timeAsScore = asScore;
+
+            if (timerType == TimerType.Countdown)
+            {
+                if (isPlaying && !paused)
+                {
+                    if (timeElapsed > 0)
+                    {
+                        timeElapsed -= Time.deltaTime;
+                    }
+                    else
+                    {
+                        timeElapsed = 0;
+                        isPlaying = false;
+                        OnEnd?.Invoke();
+                    }
+                }
+            }
+            else if (timerType == TimerType.Chronometer) 
+            {
+                if (isPlaying && !paused)
+                {
+                    timeElapsed += Time.deltaTime;
+                }
+            }
         }
 
         public void Play()
         {
             if (!isPlaying)
             {
-                StartCoroutine("RunTimer");
+                if (timerType == TimerType.Countdown) timeElapsed = startFrom;
+                OnPlay();
+                isPlaying = true;
             }
             else if (isPlaying && paused)
             {
@@ -92,7 +127,6 @@
         {
             if (isPlaying)
             {
-                StopCoroutine("RunTimer");
                 isPlaying = false;
                 paused = false;
                 timeElapsed = 0;
@@ -100,44 +134,24 @@
             }
         }
 
-        IEnumerator RunTimer()
+        public string GetTimeText(bool clockFormat = true, float multipliedBy = 1)
         {
-            //Start time CallBack
-            if (OnPlay != null) OnPlay();
-            isPlaying = true;
-            timeElapsed = 0.0f;
-            while (timeElapsed <= time)
+            var t = timeElapsed;
+            if (!clockFormat)
             {
-                if (!paused)
-                {
-                    timeElapsed += Time.deltaTime;
-                }
-                yield return null;
-            }
-            // End time
-            isPlaying = false;
-            //CallBack
-            if (OnEnd != null) OnEnd();
-            yield return null;
-        }
-
-        public string GetTimeText()
-        {
-            var t = Mathf.Clamp(time - timeElapsed, 0.0f, time);
-            if (timeAsScore)
-            {
-                return Mathf.FloorToInt(t * scoreBased).ToString();
+                if (multipliedBy < 1f) multipliedBy = 1f;
+                return Mathf.FloorToInt(t * multipliedBy).ToString();
             }
             else
             {
                 TimeSpan timeSpan = TimeSpan.FromSeconds(t);
-                var min = time >= 60 ? timeSpan.Minutes.ToString("D2") + ":" : "";
+                var min = startFrom >= 60 ? timeSpan.Minutes.ToString("D2") + ":" : "";
                 return min + timeSpan.Seconds.ToString("D2") + ":" + (timeSpan.Milliseconds / 10).ToString("D2");
             }
         }
         public float GetFill()
         {
-            return Mathf.Clamp01(timeElapsed / time);
+            return Mathf.Clamp01(timeElapsed / startFrom);
         }
     }
 }
