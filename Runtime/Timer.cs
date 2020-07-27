@@ -134,13 +134,15 @@
             }
         }
 
-        public string GetTimeText(bool clockFormat = true, float multipliedBy = 1)
+        public string GetTimeText(bool clockFormat = true, float multipliedBy = 1, bool toInt = false)
         {
             var t = timeElapsed;
             if (!clockFormat)
             {
                 if (multipliedBy < 1f) multipliedBy = 1f;
-                return Mathf.FloorToInt(t * multipliedBy).ToString();
+
+                var timeText = toInt ? Mathf.FloorToInt(t * multipliedBy) : t * multipliedBy;
+                return timeText.ToString();
             }
             else
             {
